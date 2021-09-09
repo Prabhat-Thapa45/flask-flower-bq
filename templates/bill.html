@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1>Your Cart </h1>
+{% set total = [] %}
+  <hr>
+  <table class="table table-striped">
+    <tr>
+      <th>Flower</th>
+      <th>Rate</th>
+      <th>Quantity</th>
+      <th>Total</th>
+    </tr>
+
+      {% for item in result %}
+      <tr>
+      <td>{{ item.flower_name }}</td>
+      <td>{{ item.price }}</td>
+      <td>{{ item.cart }}</td>
+        {% set s = item.price *  item.cart%}
+      <td>{{ s }}</td>
+      </tr>
+        {{total.append(s)}}
+      {% endfor %}
+      <tr>
+      <th></th>
+      <th></th>
+      <th>Grand Total:{{ total | sum}}</th>
+      <th></th>
+    </tr>
+  </table>
+{% endblock %}

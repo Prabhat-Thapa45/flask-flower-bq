@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <div class="jumbotron text-center">
+    <h1>Welcome to Flower Bouquet Store </h1>
+    <p class="lead">This is a prototype for flower bouquet app store</p>
+    {% if session.logged_in == NULL %}
+      <a href="/register" class="btn btn-primary btn-lg">Register</a>
+      <a href="/login" class="btn btn-success btn-lg">Login</a>
+    {% endif %}
+  </div>
+
+  <hr>
+  <table class="table table-striped">
+    <tr>
+      <th>ID</th>
+      <th>Flower</th>
+      <th>Rate</th>
+      <th>Quantity</th>
+      <th></th>
+    </tr>
+    {% for item in articles %}
+      <tr>
+        <td>{{item.id}}</td>
+        <td>{{item.flower_name}}</td>
+        <td>{{item.price}}</td>
+        <td>{{item.cart}}</td>
+             <td>
+          <form action="{{url_for('add_to_cart', id=item.id)}}" method="post">
+            <input type="hidden" name="_method" value="Add to Cart">
+            <input type="submit" value="Add to Cart" class="btn btn-success">
+          </form>
+        </td>
+      </tr>
+
+    {% endfor %}
+  </table>
+        <td>
+<form action="{{url_for('your_cart')}}" method="post">
+  <input type="hidden", name="_method" value="Calculate Amount">
+  <input type="submit" value="Calculate Amount" class="btn btn-success">
+</form>
+        </td>
+
+{% endblock %}

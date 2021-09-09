@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1>Your Cart </h1>
+  <hr>
+  <form action="{{url_for('your_cart', username = name) }}" method="post">
+</form>
+  <table class="table table-striped">
+    <tr>
+      <th>Flower</th>
+      <th>Quantity</th>
+      <th></th>
+      <th></th>
+    </tr>
+
+  </table>
+{% endblock %}
