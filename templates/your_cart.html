@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+{% include 'includes/_navbar.html' %}
+{% block body %}
+<div class="form-group">
+    <hr>
+    <table class="table table-striped">
+        <tr>
+            <th>Flower</th>
+            <th>Rate</th>
+            <th>Order quantity</th>
+            <th>Amount</th>
+        </tr>
+        {% set total = [] %}
+        {% for item in articles %}
+           <tr>
+               <td>{{item.flower_name}}</td>
+               <td>{{item.price}}</td>
+               <td>{{item.quantity}}</td>
+               {% set s = item.price *  item.quantity %}
+               <td>{{ s }}</td>
+           </tr>
+            <input type="hidden" value={{total.append(s)}}>
+      {% endfor %}
+       <tr>
+          <th></th>
+          <th></th>
+          <th>Grand Total:{{ total | sum}}</th>
+          <th></th>
+       </tr>
+
+    </table>
+
+</div>
+<div class="form-group">
+    <form action="{{ url_for('home.proceed_to_buy')}}" method="post">
+        <button type="submit" class="btn btn-primary"> Buy </button>
+        {% for item in articles %}
+        <input type="hidden" name="flower_name" value={{item.flower_name}}>
+        <input type="hidden" name="price" value={{item.price}}>
+        <input type="hidden" name="quantity" value={{item.quantity}}>
+        {% endfor %}
+    </form>
+</div>
+{% endblock %}
