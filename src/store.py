@@ -18,11 +18,6 @@ def is_logged_in(f):
     return wrap
 
 
-@home_reg.route('/')
-def start():
-    return render_template('start.html')
-
-
 @home_reg.route('/home')
 @is_logged_in
 def home():
@@ -40,15 +35,18 @@ def menu():
 def add_flower():
     query = "SELECT * FROM items"
     results = query_handler_fetch(query)
+
     if request.method == 'POST':
         quantity_present = int(request.form.get('quantity'))
         quantity_to_add = int(request.form['number']) + quantity_present
         print(request.form.get('number'), 22)
         # quantity_to_add = 2
         flower_name = request.form.get('flower_name')
+
         query = "UPDATE items SET quantity=%s WHERE flower_name=%s"
         values = (quantity_to_add, flower_name)
         query_handler_no_fetch(query, values)
+
         return redirect(url_for('home.add_flower'))
     return render_template('add_flower.html', articles=results)
 
@@ -76,6 +74,7 @@ def bouquet():
     if request.method == 'POST':
         query = "SELECT flower_name, price, quantity FROM items"
         results = query_handler_fetch(query)
+
         bouquet_size = int(request.form.get('bouquet_size'))
         if bouquet_size < 1:
             flash("bouquet size should more than zero", "danger")
@@ -142,12 +141,15 @@ def proceed_to_buy():
         values = (session['username'], request.form.get('flower_name'), request.form.get('price'),
                   request.form.get('quantity'))
         query_handler_no_fetch(query, values)
+
         query = "UPDATE items SET quantity=quantity-%s WHERE flower_name=%s"
         values = (reduce_amount, flower)
         query_handler_no_fetch(query, values)
+
         query = "DELETE FROM orders WHERE username=%s"
         values = (session['username'],)
         query_handler_no_fetch(query, values)
+
         flash("Your Order Has Been Placed Successfully", "success")
         return render_template('order_placed.html', articles=results)
     return render_template("your_cart.html", articles=results)
@@ -159,5 +161,6 @@ def cancel_order():
         query = "DELETE FROM orders WHERE username=%s"
         values = session['username']
         query_handler_no_fetch(query, values)
+
         flash("Your order has been cancelled successfully", "success")
     return render_template("index.html")

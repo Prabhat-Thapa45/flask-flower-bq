@@ -21,6 +21,12 @@ def is_logged_in(f):
     return wrap
 
 
+# stat page
+@app.route('/')
+def start():
+    return render_template('start.html')
+
+
 # About
 @app.route('/about')
 def about():
