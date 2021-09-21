@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, session
 from functools import wraps
 from src.login_register import log_reg
 from config import app
-from src.home import home_reg
+from src.store import home_reg
 
 
 app.register_blueprint(log_reg)
@@ -25,6 +25,12 @@ def is_logged_in(f):
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+
+# contact
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
 
 
 if __name__ == '__main__':

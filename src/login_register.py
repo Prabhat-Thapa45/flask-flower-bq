@@ -3,6 +3,7 @@ from wtforms import Form, StringField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from config import mysql
 from functools import wraps
+from src.execute_sql import query_handler_no_fetch
 
 
 log_reg = Blueprint("login_register", __name__, template_folder="templates")
@@ -41,20 +42,11 @@ def register():
         username = form.username.data
         password = sha256_crypt.encrypt(str(form.password.data))
 
-        # Create cursor
-        cur = mysql.connection.cursor()
-
-        # Execute query
-        cur.execute("INSERT INTO users(name, email, username, password) VALUES(%s, %s, %s, %s)", (name, email, username, password))
-
-        # Commit to DB
-        mysql.connection.commit()
-
-        # Close connection
-        cur.close()
-
+        query = "INSERT INTO users(name, email, username, password) VALUES(%s, %s, %s, %s)"
+        values = (name, email, username, password)
+        # Execute query Commit to DB
+        query_handler_no_fetch(query, values)
         flash('You are now registered and can log in', 'success')
-
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
@@ -66,13 +58,10 @@ def login():
         # Get Form Fields
         username = request.form['username']
         password_candidate = request.form['password']
-
         # Create cursor
         cur = mysql.connection.cursor()
-
         # Get user by username
         result = cur.execute("SELECT * FROM users WHERE username = %s", [username])
-
         if result > 0:
             # Get stored hash
             data = cur.fetchone()
