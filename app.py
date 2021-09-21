@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, session
 from functools import wraps
 from src.login_register import log_reg
-from config import app
+from src.config import app
 from src.store import home_reg
 
 

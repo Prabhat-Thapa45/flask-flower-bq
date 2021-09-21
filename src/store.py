@@ -15,7 +15,6 @@ def is_logged_in(f):
         else:
             flash('Unauthorized, Please login', 'danger')
             return redirect(url_for('login'))
-
     return wrap
 
 

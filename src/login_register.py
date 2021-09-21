@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, session, request, flash, redirect, url_for
 from wtforms import Form, StringField, PasswordField, validators
 from passlib.hash import sha256_crypt
-from config import mysql
+from src.config import mysql
 from functools import wraps
 from src.execute_sql import query_handler_no_fetch
 
