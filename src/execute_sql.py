@@ -1,4 +1,4 @@
-from src.config import mysql
+from config import mysql
 
 
 def query_handler_fetch(query: str, values: tuple = ()) -> tuple:
