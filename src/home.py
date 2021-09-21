@@ -21,6 +21,11 @@ def is_logged_in(f):
     return wrap
 
 
+@home_reg.route('/')
+def start():
+    return render_template('start.html')
+
+
 @home_reg.route('/home')
 @is_logged_in
 def home():
@@ -40,8 +45,10 @@ def add_flower():
     cur.execute("SELECT * FROM items")
     results = cur.fetchall()
     if request.method == 'POST':
-        quantity_present = request.form.get('quantity')
-        quantity_to_add = int(request.form.get('number')) + int(quantity_present)
+        quantity_present = int(request.form.get('quantity'))
+        quantity_to_add = int(request.form['number']) + quantity_present
+        print(request.form.get('number'), 22)
+        # quantity_to_add = 2
         flower_name = request.form.get('flower_name')
         cur.execute("UPDATE items SET quantity=%s WHERE flower_name=%s", [quantity_to_add, flower_name])
         mysql.connection.commit()
@@ -57,7 +64,7 @@ def add_new_flower():
     if request.method == 'POST':
         cur = mysql.connection.cursor()
         flower_name = request.form.get('new_flower')
-        quantity = request.form.get('new_quantity')
+        quantity = int(request.form.get('new_quantity'))
         try:
             price = float(request.form.get('new_price'))
         except ValueError:
@@ -71,12 +78,6 @@ def add_new_flower():
 
 
 # renders template showing list of flowers available
-@home_reg.route('/purchase_flower')
-def purchase_flower():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT flower_name, price, quantity FROM items")
-    results = cur.fetchall()
-    return render_template('purchase_flower.html', articles=results)
 
 
 # adds the flower with desired quantity in your cart
@@ -87,13 +88,30 @@ def add_to_cart():
     cur.execute("SELECT flower_name, price, quantity FROM items")
     results = cur.fetchall()
     if request.method == 'POST':
-        quantity = request.form['number']
-        flash("Item added to cart", "success")
-        cur.execute("INSERT INTO orders(username, flower_name, quantity, price) VALUES(%s, %s, %s, %s)",
-                    (session['username'], request.form.get("flower_name"), quantity, request.form.get("price")))
-        mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('home.add_to_cart', articles=results))
+        bouquet_size = int(request.form.get('bouquet_size'))
+        try:
+            quantity = int(request.form['number'])
+        except ValueError:
+            flash("No items were added into your cart", "danger")
+            quantity = 0
+        available_in_stock = int(request.form.get('available'))
+        if bouquet_size >= quantity > 0:
+            bouquet_size -= quantity
+            flash("Item added to cart", "success")
+            cur.execute("INSERT INTO orders(username, flower_name, quantity, price) VALUES(%s, %s, %s, %s)",
+                        (session['username'], request.form.get("flower_name"), quantity, request.form.get("price")))
+            mysql.connection.commit()
+            cur.close()
+        elif quantity < 0:
+            flash("Order quantity cannot be less than zero", "danger")
+        elif quantity > available_in_stock:
+            flash("Sorry we don't have enough in stock, please order something else", "danger")
+
+        if bouquet_size > 0:
+            flash(f"You have {bouquet_size} flowers to be added into your bouquet", "success")
+        else:
+            flash("You have successfully placed your all orders", "success")
+        return render_template('purchase_flower.html', bouquet_size=bouquet_size, articles=results)
     return render_template('purchase_flower.html', articles=results)
 
 
@@ -116,12 +134,42 @@ def proceed_to_buy():
     cur.execute("SELECT flower_name, price, quantity FROM orders WHERE username=%s", [session['username']])
     results = cur.fetchall()
     if request.method == 'POST':
+        reduce_amount = request.form['quantity']
+        flower = request.form['flower_name']
         cur.execute("INSERT INTO your_order (username, flower_name, price, quantity) VALUES (%s, %s, %s, %s)",
                     (session['username'], request.form.get('flower_name'), request.form.get('price'),
                      request.form.get('quantity')))
+        cur.execute("UPDATE items SET quantity=quantity-%s WHERE flower_name=%s", (reduce_amount, flower))
         cur.execute("DELETE FROM orders WHERE username=%s", [session['username']])
         mysql.connection.commit()
         cur.close()
         return render_template('order_placed.html', articles=results)
-
     return render_template("your_cart.html", articles=results)
+
+
+# renders template showing list of flowers available
+@home_reg.route('/bouquet_size', methods=['GET', 'POST'])
+@is_logged_in
+def bouquet():
+    if request.method == 'POST':
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT flower_name, price, quantity FROM items")
+        results = cur.fetchall()
+        bouquet_size = int(request.form.get('bouquet_size'))
+        if bouquet_size < 1:
+            flash("bouquet size should more than zero", "danger")
+            return render_template('bouquet_size.html')
+        flash(f"You have {bouquet_size} flowers to be added into your bouquet", "success")
+        return render_template('purchase_flower.html', bouquet_size=bouquet_size, articles=results)
+    return render_template('bouquet_size.html')
+
+
+@home_reg.route('/cancel_order', methods=['GET', 'POST'])
+def cancel_order():
+    if request.method == "POST":
+        cur = mysql.connection.cursor()
+        cur.execute("DELETE FROM orders WHERE username=%s", [session['username']])
+        mysql.connection.commit()
+        cur.close()
+        flash("Your order has been cancelled successfully", "success")
+    return render_template("index.html")

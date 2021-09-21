@@ -1,0 +1,8 @@
+{% extends 'layout.html' %}
+{% include 'includes/_navbar.html' %}
+{% block body %}
+    <form action="" method="post">
+        <input type="number" name="bouquet_size" value="{{request.form.bouquet_size}}">
+        <button type="submit" >Confirm</button>
+    </form>
+{% endblock %}

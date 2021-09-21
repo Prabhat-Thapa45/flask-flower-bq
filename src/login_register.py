@@ -4,6 +4,7 @@ from passlib.hash import sha256_crypt
 from config import mysql
 from functools import wraps
 
+
 log_reg = Blueprint("login_register", __name__, template_folder="templates")
 
 
@@ -19,7 +20,7 @@ def is_logged_in(f):
     return wrap
 
 
-# Register Form Cl
+# Register Form
 class RegisterForm(Form):
     name = StringField('Name', [validators.Length(min=1, max=50)])
     username = StringField('Username', [validators.Length(min=4, max=25)])
@@ -44,8 +45,7 @@ def register():
         cur = mysql.connection.cursor()
 
         # Execute query
-        cur.execute("INSERT INTO users(name, email, username, password) VALUES(%s, %s, %s, %s)",
-                    (name, email, username, password))
+        cur.execute("INSERT INTO users(name, email, username, password) VALUES(%s, %s, %s, %s)", (name, email, username, password))
 
         # Commit to DB
         mysql.connection.commit()
@@ -55,12 +55,12 @@ def register():
 
         flash('You are now registered and can log in', 'success')
 
-        return redirect(url_for('login_register.login'))
+        return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
 
 # User login
-@log_reg.route('/', methods=['GET', 'POST'])
+@log_reg.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         # Get Form Fields
@@ -77,7 +77,6 @@ def login():
             # Get stored hash
             data = cur.fetchone()
             password = data['password']
-
             # Compare Passwords
             if sha256_crypt.verify(password_candidate, password):
                 # Passed
@@ -105,9 +104,5 @@ def login():
 @is_logged_in
 def logout():
     session.clear()
-    cur = mysql.connection.cursor()
-    cur.execute("UPDATE items SET cart = 0")
-    mysql.connection.commit()
-    cur.close()
     flash('You are now logged out', 'success')
-    return render_template("login.html")
+    return redirect(url_for("login_register.login"))
