@@ -88,8 +88,15 @@ def bouquet():
 @home_reg.route('/purchase_flower/add_to_cart', methods=['GET', 'POST'])
 @is_logged_in
 def add_to_cart():
+    """
+    Fetches data from items and populates 'purchase_flower.html' with flowers to be bought
+    bouquet size given by user is used as a constraint to avoid user from buying more than the confirmed quantity
+    try except block is used in order to check if user adds empty value in the cart
+    after each successful order bouquet size is reduced.
+    """
     query = "SELECT flower_name, price, quantity FROM items"
     results = query_handler_fetch(query)
+
     if request.method == 'POST':
         bouquet_size = int(request.form.get('bouquet_size'))
         try:
@@ -114,13 +121,17 @@ def add_to_cart():
         else:
             flash("You have successfully placed your all orders", "success")
         return render_template('purchase_flower.html', bouquet_size=bouquet_size, articles=results)
-    return render_template('purchase_flower.html', articles=results)
+    return redirect(url_for('proceed_to_buy', articles=results))
 
 
 # displays your order details with total amount to be paid
 @home_reg.route('/purchase_flower/your_cart', methods=['GET', 'POST'])
 @is_logged_in
 def your_cart():
+    """
+    Populates your_cart template from data in orders table. This table is major table consisting orders from all users
+    :return: ('your_cart.html', articles: tuple)
+    """
     query = "SELECT flower_name, price, quantity FROM orders WHERE username=%s"
     values = (session['username'],)
     results = query_handler_fetch(query, values)
@@ -131,6 +142,15 @@ def your_cart():
 @home_reg.route('/purchase_flower/proceed_to_buy', methods=['GET', 'POST'])
 @is_logged_in
 def proceed_to_buy():
+    """
+    Populates the template with data fetched from table orders where username is equal to user logged in
+    Inserts those data into separate table your_orders with order_date added as the day you clicked buy
+    this table can be later used to show orders history
+    Updates the flowers quantity in table items, after the order is placed.
+    Deletes data from table orders for the logged in user
+
+    :return:
+    """
     query = "SELECT flower_name, price, quantity FROM orders WHERE username=%s"
     values = (session['username'],)
     results = query_handler_fetch(query, values)
@@ -151,15 +171,22 @@ def proceed_to_buy():
         query_handler_no_fetch(query, values)
 
         flash("Your Order Has Been Placed Successfully", "success")
+
+        query = "SELECT flower_name, quantity, order_date FROM your_orders WHERE username=%s"
+        values = (session['username'],)
+        query_handler_fetch(query, values)
         return render_template('order_placed.html', articles=results)
     return render_template("your_cart.html", articles=results)
 
 
 @home_reg.route('/cancel_order', methods=['GET', 'POST'])
 def cancel_order():
+    """
+    Deletes from username
+    """
     if request.method == "POST":
         query = "DELETE FROM orders WHERE username=%s"
-        values = session['username']
+        values = (session['username'],)
         query_handler_no_fetch(query, values)
 
         flash("Your order has been cancelled successfully", "success")
