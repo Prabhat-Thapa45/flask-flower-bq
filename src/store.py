@@ -202,7 +202,7 @@ def proceed_to_buy():
 @is_logged_in
 def cancel_order():
     """
-    Deletes from username
+    Deletes from username 
     """
     if request.method == "POST":
         query = "DELETE FROM orders WHERE username=%s"
