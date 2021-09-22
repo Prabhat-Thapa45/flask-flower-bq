@@ -1,7 +1,6 @@
 {% extends 'layout.html' %}
 {% include 'includes/_navbar.html' %}
 {% block body %}
-
       {% if session.logged_in == NULL %}
           <a href="/register" class="btn btn-primary btn-lg">Register</a>
           <a href="/login" class="btn btn-success btn-lg">Login</a>
@@ -11,10 +10,7 @@
           <tr>
                <td><a href="add_flower"><input type="submit" value="Add Flower" class="btn btn-primary"></a></td>
                <td><a href="bouquet_size"><input type="submit" value="Bouquet Size" class="btn btn-primary"></a></td>
-<!--               <td><a href="purchase_flower"><input type="submit" value="Purchase Flower" class="btn btn-primary"></a></td>-->
-               <td><a href="/purchase_flower/your_cart"><input type="submit" value="Your Cart" class="btn btn-primary"></a></td>
+               <td><a href="go_to_cart"><input type="submit" value="Go to Cart" class="btn btn-primary"></a></td>
           </tr>
       </table>
-
-
 {% endblock %}
