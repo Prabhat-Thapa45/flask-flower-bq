@@ -24,6 +24,20 @@ def home():
     return render_template('index.html', username=session['username'])
 
 
+# About
+@home_reg.route('/about')
+@is_logged_in
+def about():
+    return render_template('about.html')
+
+
+# contact
+@home_reg.route('/contact')
+@is_logged_in
+def contact():
+    return render_template('contact.html')
+
+
 @home_reg.route('/menu')
 @is_logged_in
 def menu():
@@ -32,6 +46,7 @@ def menu():
 
 # adds flower to existing flowers and also adds new flower
 @home_reg.route('/add_flower', methods=['Get', 'POST'])
+@is_logged_in
 def add_flower():
     query = "SELECT * FROM items"
     results = query_handler_fetch(query)
@@ -53,8 +68,12 @@ def add_flower():
 
 # adds new flower
 @home_reg.route('/add_new_flower', methods=['GET', 'POST'])
+@is_logged_in
 def add_new_flower():
     if request.method == 'POST':
+        query = "SELECT * FROM items"
+        results = query_handler_fetch(query)
+
         flower_name = request.form.get('new_flower')
         quantity = int(request.form.get('new_quantity'))
         try:
@@ -63,8 +82,9 @@ def add_new_flower():
             return redirect(url_for('home.add_new_flower'))
         else:
             query = "INSERT INTO items(flower_name, price, quantity) VALUES(%s, %s, %s)"
-            values = (flower_name, quantity, price)
+            values = (flower_name, price, quantity)
             query_handler_no_fetch(query, values)
+            return redirect(url_for('home.add_flower', articles=results))
     return render_template('add_new_flower.html')
 
 
@@ -121,7 +141,7 @@ def add_to_cart():
         else:
             flash("You have successfully placed your all orders", "success")
         return render_template('purchase_flower.html', bouquet_size=bouquet_size, articles=results)
-    return redirect(url_for('proceed_to_buy', articles=results))
+    return redirect(url_for('home.proceed_to_buy', articles=results))
 
 
 # displays your order details with total amount to be paid
@@ -148,7 +168,6 @@ def proceed_to_buy():
     this table can be later used to show orders history
     Updates the flowers quantity in table items, after the order is placed.
     Deletes data from table orders for the logged in user
-
     :return:
     """
     query = "SELECT flower_name, price, quantity FROM orders WHERE username=%s"
@@ -180,6 +199,7 @@ def proceed_to_buy():
 
 
 @home_reg.route('/cancel_order', methods=['GET', 'POST'])
+@is_logged_in
 def cancel_order():
     """
     Deletes from username
