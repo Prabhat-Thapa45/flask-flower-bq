@@ -13,27 +13,25 @@
             <th></th>
         </tr>
         {% for item in articles %}
-        <tr><form name="add" action="{{url_for('home.add_to_cart')}}" method="post" onsubmit="return validate()">
+        <tr><form name="add" action="{{url_for('store.add_to_cart')}}" method="post">
             <td>{{item.flower_name}}</td>
             <td>{{item.price}}</td>
-
             <td><input type="number" name="number"></td>
-
-            <td> <button type="submit" class="btn btn-primary">Add to Cart</button></td>
             <input type="hidden" name="available" value="{{item.quantity}}">
             <input type="hidden" name="bouquet_size" value="{{bouquet_size}}">
             <input type="hidden" name="flower_name" value={{item.flower_name}}>
             <input type="hidden" name="price" value={{item.price}}>
-
+            <td> <button type="submit" class="btn btn-primary">Add to Cart</button></td>
             </form>
         </tr>
         {% endfor %}
 
     </table>
-    <form action="{{ url_for('home.your_cart')}}">
-        <button type="submit" class="btn btn-primary">Your Cart</button>
+    <form action="{{ url_for('store.check_order_bq')}}" method="post">
+        <input type="hidden" name="bouquet_size" value="{{bouquet_size}}">
+        <button type="submit" class="btn btn-primary">Go to Cart</button>
     </form>
-    <form action="{{ url_for('home.cancel_order')}}" method="post">
+    <form action="{{ url_for('store.cancel_order')}}" method="post">
         <button type="submit" class="btn btn-primary">Cancel Order</button>
     </form>
 </div>

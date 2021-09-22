@@ -47,7 +47,7 @@ def register():
         # Execute query Commit to DB
         query_handler_no_fetch(query, values)
         flash('You are now registered and can log in', 'success')
-        return redirect(url_for('login'))
+        return redirect(url_for('login_register.login'))
     return render_template('register.html', form=form)
 
 
@@ -74,7 +74,7 @@ def login():
 
                 flash('You are now logged in', 'success')
                 cur.close()
-                return redirect(url_for('home.home'))
+                return redirect(url_for('store.home'))
             else:
                 error = 'Invalid login'
                 cur.close()
