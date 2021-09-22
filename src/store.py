@@ -24,6 +24,20 @@ def home():
     return render_template('index.html', username=session['username'])
 
 
+# About
+@home_reg.route('/about')
+@is_logged_in
+def about():
+    return render_template('about.html')
+
+
+# contact
+@home_reg.route('/contact')
+@is_logged_in
+def contact():
+    return render_template('contact.html')
+
+
 @home_reg.route('/menu')
 @is_logged_in
 def menu():
@@ -32,6 +46,7 @@ def menu():
 
 # adds flower to existing flowers and also adds new flower
 @home_reg.route('/add_flower', methods=['Get', 'POST'])
+@is_logged_in
 def add_flower():
     query = "SELECT * FROM items"
     results = query_handler_fetch(query)
@@ -53,6 +68,7 @@ def add_flower():
 
 # adds new flower
 @home_reg.route('/add_new_flower', methods=['GET', 'POST'])
+@is_logged_in
 def add_new_flower():
     if request.method == 'POST':
         flower_name = request.form.get('new_flower')
@@ -180,6 +196,7 @@ def proceed_to_buy():
 
 
 @home_reg.route('/cancel_order', methods=['GET', 'POST'])
+@is_logged_in
 def cancel_order():
     """
     Deletes from username

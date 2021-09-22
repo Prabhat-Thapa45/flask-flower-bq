@@ -9,34 +9,10 @@ app.register_blueprint(log_reg)
 app.register_blueprint(home_reg)
 
 
-# Check if user logged in
-def is_logged_in(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return f(*args, **kwargs)
-        else:
-            flash('Unauthorized, Please login', 'danger')
-            return redirect(url_for('login'))
-    return wrap
-
-
 # stat page
 @app.route('/')
 def start():
     return render_template('start.html')
-
-
-# About
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-
-# contact
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
 
 
 if __name__ == '__main__':
