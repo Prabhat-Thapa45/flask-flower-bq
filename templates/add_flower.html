@@ -7,28 +7,33 @@
     <table class="table table-striped">
         <tr>
             <th>Flower</th>
-            <th>Quantity</th>
-            <th>Price</th>
+            <th>Rate</th>
             <th>Order quantity</th>
             <th></th>
             <th></th>
         </tr>
         {% for item in articles %}
-        <tr>
+        <tr><form name="add" action="{{url_for('store.add_to_cart')}}" method="post">
             <td>{{item.flower_name}}</td>
-            <td>{{item.quantity}}</td>
             <td>{{item.price}}</td>
-                <form action="{{url_for('home.add_flower')}}" method ='post'>
-                    <input type="hidden" name="quantity" value={{item.quantity}}>
-                    <td><input type="number" name="number" value={{request.form.number}}></td>
-                    <input type="hidden" name="flower_name" value={{item.flower_name}}>
-                    <td> <button type="submit" class="btn btn-primary">Add to Store</button></td>
-                </form>
-
+            <td><input type="number" name="number"></td>
+            <input type="hidden" name="available" value="{{item.quantity}}">
+            <input type="hidden" name="bouquet_size" value="{{bouquet_size}}">
+            <input type="hidden" name="flower_name" value={{item.flower_name}}>
+            <input type="hidden" name="price" value={{item.price}}>
+            <td> <button type="submit" class="btn btn-primary">Add to Cart</button></td>
+            </form>
         </tr>
         {% endfor %}
+
     </table>
-    <hr>
-    <a href="/add_new_flower"><input type="submit" value="Add New Flower" class="btn btn-primary"></a>
-    </div>
-{% endblock %}# renders template showing list of flowers available
+    <form action="{{ url_for('store.check_order_bq')}}" method="post">
+        <input type="hidden" name="bouquet_size" value="{{bouquet_size}}">
+        <button type="submit" class="btn btn-primary">Go to Cart</button>
+    </form>
+    <form action="{{ url_for('store.cancel_order')}}" method="post">
+        <button type="submit" class="btn btn-primary">Cancel Order</button>
+    </form>
+</div>
+{% endblock %}
+
