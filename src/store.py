@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, session, request, flash, redirect, url_for
 from functools import wraps
 from src.execute_sql import query_handler_no_fetch, query_handler_fetch
-
+from src.check import check_flower_by_name
 
 home_reg = Blueprint("home", __name__, template_folder="templates")
 
@@ -81,6 +81,11 @@ def add_new_flower():
         except ValueError:
             return redirect(url_for('home.add_new_flower'))
         else:
+            if check_flower_by_name(results, flower_name):
+                query = "UPDATE items SET quantity = quantity + %s, price = %s WHERE flower_name=%s"
+                values = (quantity, price, flower_name)
+                query_handler_no_fetch(query, values)
+                return redirect(url_for('home.add_flower', articles=results))
             query = "INSERT INTO items(flower_name, price, quantity) VALUES(%s, %s, %s)"
             values = (flower_name, price, quantity)
             query_handler_no_fetch(query, values)
@@ -202,7 +207,7 @@ def proceed_to_buy():
 @is_logged_in
 def cancel_order():
     """
-    Deletes from username 
+    Deletes from username
     """
     if request.method == "POST":
         query = "DELETE FROM orders WHERE username=%s"
