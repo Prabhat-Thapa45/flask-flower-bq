@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, session, request, flash, redirect, url_for
-from wtforms import Form, StringField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from config import mysql
 from functools import wraps
@@ -21,34 +20,24 @@ def is_logged_in(f):
     return wrap
 
 
-# Register Form
-class RegisterForm(Form):
-    name = StringField('Name', [validators.Length(min=1, max=50)])
-    username = StringField('Username', [validators.Length(min=4, max=25)])
-    email = StringField('Email', [validators.Length(min=6, max=50)])
-    password = PasswordField('Password', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords do not match')
-    ])
-    confirm = PasswordField('Confirm Password')
-
-
 @log_reg.route('/register', methods=['GET', 'POST'])
 def register():
-    form = RegisterForm(request.form)
-    if request.method == 'POST' and form.validate():
-        name = form.name.data
-        email = form.email.data
-        username = form.username.data
-        password = sha256_crypt.encrypt(str(form.password.data))
-
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        username = request.form['username']
+        password = request.form['password']
+        if str(password) != str(request.form['confirm']):
+            flash("password doesn't match", "danger")
+            return render_template('register.html')
+        password = sha256_crypt.hash(str(password))
         query = "INSERT INTO users(name, email, username, password) VALUES(%s, %s, %s, %s)"
         values = (name, email, username, password)
         # Execute query Commit to DB
         query_handler_no_fetch(query, values)
         flash('You are now registered and can log in', 'success')
-        return redirect(url_for('login_register.login'))
-    return render_template('register.html', form=form)
+        return render_template('login.html')
+    return render_template('register.html')
 
 
 # User login
