@@ -20,7 +20,7 @@
             <td>{{item.price}}</td>
             <form action="{{url_for('store.add_flower')}}" method ='post'>
                 <input type="hidden" name="quantity" value={{item.quantity}}>
-                <td><input type="number" name="number" value={{request.form.number}}></td>
+                <td><input type="text" name="number" value={{request.form.number}}></td>
                 <input type="hidden" name="flower_name" value={{item.flower_name}}>
                 <td> <button type="submit" class="btn btn-primary">Add to Store</button></td>
             </form>

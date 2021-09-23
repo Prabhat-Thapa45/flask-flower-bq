@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, session, request, flash, redirect, url_for
 from functools import wraps
 from src.execute_sql import query_handler_no_fetch, query_handler_fetch
-from src.check import check_flower_by_name
+from src.check import check_flower_by_name, int_convertor
 
 home_reg = Blueprint("store", __name__, template_folder="templates")
 
@@ -52,14 +52,14 @@ def add_flower():
     results = query_handler_fetch(query)
 
     if request.method == 'POST':
-        quantity_present = int(request.form.get('quantity'))
-        quantity_to_add = int(request.form['number']) + quantity_present
-        print(request.form.get('number'), 22)
-        # quantity_to_add = 2
+        quantity_to_add = int_convertor(request.form['number'])
+        quantity_present = int_convertor(request.form.get('quantity'))
+        if quantity_to_add < 0:
+            flash("You can't pass negative value", "danger")
+            return redirect(url_for('store.add_flower', articles=results))
         flower_name = request.form.get('flower_name')
-
         query = "UPDATE items SET quantity=%s WHERE flower_name=%s"
-        values = (quantity_to_add, flower_name)
+        values = (sum([quantity_to_add + quantity_present]), flower_name)
         query_handler_no_fetch(query, values)
 
         return redirect(url_for('store.add_flower'))
@@ -73,7 +73,6 @@ def add_new_flower():
     if request.method == 'POST':
         query = "SELECT * FROM items"
         results = query_handler_fetch(query)
-
         flower_name = request.form.get('new_flower')
         quantity = int(request.form.get('new_quantity'))
         try:
@@ -216,7 +215,7 @@ def check_order_bq():
 def go_to_cart():
     """
     Populates go_to_cart template from data in orders table. This table is major table consisting orders from all users
-    :return: ('go_to_cart.html', articles: tuple)
+    return: ('go_to_cart.html', articles: tuple)
     """
     query = "SELECT flower_name, price, quantity FROM orders WHERE username=%s"
     values = (session['username'],)
